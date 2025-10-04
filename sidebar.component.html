@@ -1,0 +1,83 @@
+<div class="sidebar">
+  <nav class="category-menu">
+    <!-- Đồ uống - Parent -->
+    <div class="category-group">
+      <button class="category-item parent" onclick="toggleCategory(this)">
+        <span>Đồ uống</span>
+        <span class="arrow">›</span>
+      </button>
+      <div class="children-list">
+        <!-- Add children here if needed -->
+      </div>
+    </div>
+
+    <!-- Gia dụng - Parent -->
+    <div class="category-group">
+      <button class="category-item parent" onclick="toggleCategory(this)">
+        <span>Gia dụng</span>
+        <span class="arrow">›</span>
+      </button>
+      <div class="children-list">
+        <!-- Add children here if needed -->
+      </div>
+    </div>
+
+    <!-- Thực phẩm - Parent with Children -->
+    <div class="category-group">
+      <button class="category-item parent expanded" onclick="toggleCategory(this)">
+        <span>Thực phẩm</span>
+        <span class="arrow">›</span>
+      </button>
+      <div class="children-list open">
+        <button class="category-item child active">
+          <span>Mì gói</span>
+        </button>
+        <button class="category-item child">
+          <span>Cơm chiên</span>
+        </button>
+        <button class="category-item child">
+          <span>Bún chả hà nội</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Tổng hợp - Parent -->
+    <div class="category-group">
+      <button class="category-item parent" onclick="toggleCategory(this)">
+        <span>Tổng hợp</span>
+        <span class="arrow">›</span>
+      </button>
+      <div class="children-list">
+        <!-- Add children here if needed -->
+      </div>
+    </div>
+  </nav>
+</div>
+
+<script>
+function toggleCategory(button) {
+  const parent = button.parentElement;
+  const childrenList = parent.querySelector('.children-list');
+  const arrow = button.querySelector('.arrow');
+  
+  // Toggle expanded class
+  button.classList.toggle('expanded');
+  
+  // Toggle children list
+  if (childrenList) {
+    childrenList.classList.toggle('open');
+  }
+}
+
+// Handle child item click
+document.querySelectorAll('.category-item.child').forEach(item => {
+  item.addEventListener('click', function() {
+    // Remove active from all children
+    document.querySelectorAll('.category-item.child').forEach(child => {
+      child.classList.remove('active');
+    });
+    // Add active to clicked item
+    this.classList.add('active');
+  });
+});
+</script>

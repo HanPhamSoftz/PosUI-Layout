@@ -1,0 +1,1028 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>POS System - Version 2</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: #f5f5f5;
+      overflow: hidden;
+    }
+
+    .pos-layout {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      background: white;
+    }
+
+    /* Header Styles */
+    .pos-header {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px 20px;
+      background: white;
+      border-bottom: 2px solid #000;
+      gap: 20px;
+      align-items: flex-start;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      flex: 1;
+    }
+
+    .search-input {
+      width: 380px;
+      padding: 10px 15px;
+      border: 2px solid #000;
+      border-radius: 8px;
+      font-size: 14px;
+      height: 42px;
+    }
+
+    .print-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      background: #7c3aed;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 13px;
+      height: 42px;
+    }
+
+    .quantity-input {
+      width: 45px;
+      padding: 4px 6px;
+      border: 1px solid #fff;
+      border-radius: 4px;
+      text-align: center;
+      background: white;
+      color: #000;
+      font-size: 13px;
+    }
+
+    .customer-btn {
+      padding: 6px 18px;
+      border: 2px solid #000;
+      border-radius: 8px;
+      background: white;
+      cursor: pointer;
+      font-size: 13px;
+      white-space: nowrap;
+      line-height: 1.3;
+      height: 42px;
+    }
+
+    .header-right {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      min-width: 450px;
+    }
+
+    .info-row {
+      display: flex;
+      gap: 12px;
+    }
+
+    .info-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .info-group.full-width {
+      flex: 1;
+    }
+
+    .info-group label {
+      font-weight: 500;
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    .date-input, .invoice-input {
+      padding: 8px 12px;
+      border: 2px solid #000;
+      border-radius: 8px;
+      font-size: 13px;
+      width: 110px;
+    }
+
+    .customer-input {
+      flex: 1;
+      padding: 8px 12px;
+      border: 2px solid #000;
+      border-radius: 8px;
+      font-size: 13px;
+    }
+
+    /* Main Content */
+    .main-content {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 145px;
+      background: white;
+      border-right: 2px solid #000;
+      padding: 12px 8px;
+      overflow-y: auto;
+    }
+
+    .category-menu {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .category-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .category-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 12px;
+      border: 2px solid #000;
+      border-radius: 8px;
+      background: white;
+      cursor: pointer;
+      font-size: 13px;
+      text-align: left;
+      transition: all 0.2s;
+      width: 100%;
+    }
+
+    .category-item:hover {
+      background: #f0f0f0;
+    }
+
+    .category-item.parent {
+      font-weight: 500;
+    }
+
+    .category-item .arrow {
+      font-weight: bold;
+      font-size: 18px;
+      transition: transform 0.2s ease;
+      display: inline-block;
+    }
+
+    .category-item.parent.expanded .arrow {
+      transform: rotate(90deg);
+    }
+
+    .children-list {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-top: 0;
+      padding-left: 0;
+    }
+
+    .children-list.open {
+      max-height: 500px;
+      margin-top: 6px;
+    }
+
+    .category-item.child {
+      padding: 8px 12px;
+      font-size: 12px;
+      border: 1px solid #666;
+      background: #f9fafb;
+      margin-left: 10px;
+      width: calc(100% - 10px);
+    }
+
+    .category-item.child:hover {
+      background: #e5e7eb;
+    }
+
+    .category-item.child.active {
+      background: #d1d5db;
+      font-weight: 600;
+      border-color: #000;
+      border-width: 2px;
+    }
+
+    /* Product Grid */
+    .product-section {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: white;
+      overflow: hidden;
+      border-right: 2px solid #000;
+    }
+
+    .filter-buttons {
+      display: flex;
+      gap: 8px;
+      padding: 12px 12px 0 12px;
+      flex-wrap: wrap;
+      flex-shrink: 0;
+    }
+
+    .filter-btn {
+      padding: 8px 18px;
+      border: 2px solid #000;
+      border-radius: 8px;
+      background: white;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    .filter-btn:hover {
+      background: #f0f0f0;
+    }
+
+    .filter-btn.active {
+      background: #0c5273;
+      color: white;
+    }
+
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 10px;
+      padding: 12px;
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+
+    /* Responsive grid columns */
+    @media (min-width: 1400px) {
+      .product-grid {
+        grid-template-columns: repeat(5, 1fr);
+      }
+    }
+
+    @media (min-width: 1200px) and (max-width: 1399px) {
+      .product-grid {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+
+    @media (min-width: 900px) and (max-width: 1199px) {
+      .product-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    @media (max-width: 899px) {
+      .product-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .product-card {
+      border: 2px solid #000;
+      border-radius: 10px;
+      padding: 8px;
+      background: white;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      flex-direction: column;
+      height: fit-content;
+    }
+
+    .product-card:hover {
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      transform: translateY(-2px);
+    }
+
+    .product-image {
+      width: 100%;
+      aspect-ratio: 1;
+      background: #0c5273;
+      border-radius: 8px;
+      margin-bottom: 8px;
+    }
+
+    .product-info {
+      padding: 4px;
+    }
+
+    .product-name {
+      font-size: 12px;
+      font-weight: 600;
+      margin: 0 0 3px 0;
+      color: #000;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .product-code {
+      font-size: 10px;
+      color: #4aadd6;
+      margin: 0 0 6px 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .product-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .product-price {
+      color: #dc2626;
+      font-weight: 600;
+      font-size: 12px;
+    }
+
+    .add-btn {
+      width: 28px;
+      height: 28px;
+      border: 2px solid #000;
+      border-radius: 6px;
+      background: white;
+      cursor: pointer;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      padding: 0;
+    }
+
+    .add-btn:hover {
+      background: #0c5273;
+      color: white;
+      border-color: #0c5273;
+    }
+
+    .bottom-tabs {
+      display: flex;
+      gap: 0;
+      border: 2px solid #000;
+      border-radius: 8px;
+      overflow: hidden;
+      width: fit-content;
+      margin: 0 12px 12px 12px;
+      flex-shrink: 0;
+    }
+
+    .tab-btn {
+      padding: 10px 25px;
+      border: none;
+      border-right: 2px solid #000;
+      background: white;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    .tab-btn:last-child {
+      border-right: none;
+    }
+
+    .tab-btn.active {
+      background: #0c5273;
+      color: white;
+    }
+
+    .tab-btn:hover:not(.active) {
+      background: #f0f0f0;
+    }
+
+    /* Cart */
+    .cart-section {
+      width: 480px;
+      min-width: 400px;
+      background: white;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Responsive cart width */
+    @media (min-width: 1600px) {
+      .cart-section {
+        width: 520px;
+      }
+    }
+
+    @media (max-width: 1200px) {
+      .cart-section {
+        width: 400px;
+        min-width: 350px;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .cart-section {
+        width: 100%;
+        min-width: 300px;
+      }
+    }
+
+    .cart-tabs {
+      display: flex;
+      border-bottom: 2px solid #000;
+    }
+
+    .cart-tab {
+      flex: 1;
+      padding: 10px 15px;
+      border: none;
+      border-right: 2px solid #000;
+      background: white;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    .cart-tab:last-child {
+      border-right: none;
+    }
+
+    .cart-tab.active {
+      background: #0c5273;
+      color: white;
+    }
+
+    .cart-tab:hover:not(.active) {
+      background: #f0f0f0;
+    }
+
+    .cart-table {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px;
+      background: #fafafa;
+    }
+
+    .cart-table table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+    }
+
+    .cart-table th {
+      text-align: left;
+      padding: 8px 6px;
+      font-size: 12px;
+      font-weight: 600;
+      border-bottom: 2px solid #e5e7eb;
+      background: #f9fafb;
+      position: sticky;
+      top: 0;
+    }
+
+    .cart-table td {
+      padding: 10px 6px;
+      font-size: 12px;
+      border-bottom: 1px solid #f3f4f6;
+    }
+
+    .cart-table .price {
+      color: #dc2626;
+      font-weight: 600;
+    }
+
+    .cart-summary {
+      padding: 12px;
+      background: white;
+      border-top: 2px solid #000;
+    }
+
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0;
+      font-size: 13px;
+    }
+
+    .summary-row .amount {
+      font-weight: 600;
+    }
+
+    .discount-row {
+      align-items: center;
+    }
+
+    .discount-input-group {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .discount-input {
+      width: 55px;
+      padding: 5px 8px;
+      border: 2px solid #000;
+      border-radius: 6px;
+      text-align: center;
+      font-size: 13px;
+    }
+
+    .confirm-btn {
+      padding: 5px 12px;
+      background: #0c5273;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    .confirm-btn:hover {
+      background: #094561;
+    }
+
+    .total-row {
+      padding-top: 12px;
+      border-top: 2px solid #000;
+      margin-top: 8px;
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .total-amount {
+      color: #dc2626;
+      font-size: 17px;
+      font-weight: 700;
+    }
+
+    .cart-actions {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      padding: 12px;
+      border-top: 2px solid #e5e7eb;
+      background: white;
+    }
+
+    .action-btn {
+      padding: 11px 16px;
+      border: 2px solid #000;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+
+    .action-btn.secondary {
+      background: white;
+      color: #000;
+    }
+
+    .action-btn.secondary:hover {
+      background: #f0f0f0;
+    }
+
+    .action-btn.primary {
+      background: #22c55e;
+      color: white;
+      border-color: #22c55e;
+    }
+
+    .action-btn.primary:hover {
+      background: #16a34a;
+      border-color: #16a34a;
+    }
+
+    /* Footer */
+    .pos-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 20px;
+      background: white;
+      border-top: 2px solid #000;
+      gap: 20px;
+    }
+
+    .footer-left {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .footer-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .pos-footer label {
+      font-weight: 500;
+      font-size: 14px;
+      white-space: nowrap;
+    }
+
+    .location-input {
+      flex: 1;
+      min-width: 300px;
+      padding: 8px 12px;
+      border: 2px solid #000;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+
+    .cashier-input {
+      width: 200px;
+      padding: 8px 12px;
+      border: 2px solid #000;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="pos-layout">
+    <!-- Header -->
+    <header>
+      <div class="pos-header">
+        <div class="header-left">
+          <input type="text" class="search-input" placeholder="Tìm kiếm...">
+          <button class="print-btn">
+            <span>🖨️</span>
+            <span>Số lượng:</span>
+            <input type="number" value="1" class="quantity-input">
+          </button>
+          <button class="customer-btn">Khách hàng<br>thân thiết</button>
+        </div>
+        
+        <div class="header-right">
+          <div class="info-row">
+            <div class="info-group">
+              <label>Ngày:</label>
+              <input type="text" value="03/10/2025" class="date-input">
+            </div>
+            <div class="info-group">
+              <label>Số phiếu:</label>
+              <input type="text" value="1248" class="invoice-input">
+            </div>
+          </div>
+          <div class="info-group full-width">
+            <label>Khách hàng:</label>
+            <input type="text" value="Nguyễn Hoàng Long" class="customer-input">
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <nav class="category-menu">
+          <!-- Đồ uống - Parent -->
+          <div class="category-group">
+            <button class="category-item parent" onclick="toggleCategory(this)">
+              <span>Đồ uống</span>
+              <span class="arrow">›</span>
+            </button>
+            <div class="children-list">
+              <!-- Add children here if needed -->
+            </div>
+          </div>
+
+          <!-- Gia dụng - Parent -->
+          <div class="category-group">
+            <button class="category-item parent" onclick="toggleCategory(this)">
+              <span>Gia dụng</span>
+              <span class="arrow">›</span>
+            </button>
+            <div class="children-list">
+              <!-- Add children here if needed -->
+            </div>
+          </div>
+
+          <!-- Thực phẩm - Parent with Children -->
+          <div class="category-group">
+            <button class="category-item parent expanded" onclick="toggleCategory(this)">
+              <span>Thực phẩm</span>
+              <span class="arrow">›</span>
+            </button>
+            <div class="children-list open">
+              <button class="category-item child active" onclick="selectChild(this)">
+                <span>Mì gói</span>
+              </button>
+              <button class="category-item child" onclick="selectChild(this)">
+                <span>Cơm chiên</span>
+              </button>
+              <button class="category-item child" onclick="selectChild(this)">
+                <span>Bún chả hà nội</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Tổng hợp - Parent -->
+          <div class="category-group">
+            <button class="category-item parent" onclick="toggleCategory(this)">
+              <span>Tổng hợp</span>
+              <span class="arrow">›</span>
+            </button>
+            <div class="children-list">
+              <!-- Add children here if needed -->
+            </div>
+          </div>
+        </nav>
+      </aside>
+
+      <!-- Product Grid -->
+      <section class="product-section">
+        <div class="filter-buttons">
+          <button class="filter-btn">ABCDE</button>
+          <button class="filter-btn">FGHIJ</button>
+          <button class="filter-btn active">KLMN</button>
+          <button class="filter-btn">OPQR</button>
+          <button class="filter-btn">STUV</button>
+          <button class="filter-btn">WXYZ</button>
+        </div>
+
+        <div class="product-grid">
+          <div class="product-card">
+            <div class="product-image"></div>
+            <div class="product-info">
+              <h4 class="product-name">Mỳ Hảo Hảo</h4>
+              <p class="product-code">ABCD1234</p>
+              <div class="product-footer">
+                <span class="product-price">12.000đ</span>
+                <button class="add-btn">+</button>
+              </div>
+            </div>
+          </div>
+          <div class="product-card">
+            <div class="product-image"></div>
+            <div class="product-info">
+              <h4 class="product-name">Mỳ Hảo Hảo</h4>
+              <p class="product-code">ABCD1234</p>
+              <div class="product-footer">
+                <span class="product-price">12.000đ</span>
+                <button class="add-btn">+</button>
+              </div>
+            </div>
+          </div>
+          <div class="product-card">
+            <div class="product-image"></div>
+            <div class="product-info">
+              <h4 class="product-name">Mỳ Hảo Hảo</h4>
+              <p class="product-code">ABCD1234</p>
+              <div class="product-footer">
+                <span class="product-price">12.000đ</span>
+                <button class="add-btn">+</button>
+              </div>
+            </div>
+          </div>
+          <div class="product-card">
+            <div class="product-image"></div>
+            <div class="product-info">
+              <h4 class="product-name">Mỳ Hảo Hảo</h4>
+              <p class="product-code">ABCD1234</p>
+              <div class="product-footer">
+                <span class="product-price">12.000đ</span>
+                <button class="add-btn">+</button>
+              </div>
+            </div>
+          </div>
+          <div class="product-card">
+            <div class="product-image"></div>
+            <div class="product-info">
+              <h4 class="product-name">Mỳ Hảo Hảo</h4>
+              <p class="product-code">ABCD1234</p>
+              <div class="product-footer">
+                <span class="product-price">12.000đ</span>
+                <button class="add-btn">+</button>
+              </div>
+            </div>
+          </div>
+          <div class="product-card">
+            <div class="product-image"></div>
+            <div class="product-info">
+              <h4 class="product-name">Mỳ Hảo Hảo</h4>
+              <p class="product-code">ABCD1234</p>
+              <div class="product-footer">
+                <span class="product-price">12.000đ</span>
+                <button class="add-btn">+</button>
+              </div>
+            </div>
+          </div>
+          <div class="product-card">
+            <div class="product-image"></div>
+            <div class="product-info">
+              <h4 class="product-name">Mỳ Hảo Hảo</h4>
+              <p class="product-code">ABCD1234</p>
+              <div class="product-footer">
+                <span class="product-price">12.000đ</span>
+                <button class="add-btn">+</button>
+              </div>
+            </div>
+          </div>
+          <div class="product-card">
+            <div class="product-image"></div>
+            <div class="product-info">
+              <h4 class="product-name">Mỳ Hảo Hảo</h4>
+              <p class="product-code">ABCD1234</p>
+              <div class="product-footer">
+                <span class="product-price">12.000đ</span>
+                <button class="add-btn">+</button>
+              </div>
+            </div>
+          </div>
+          <div class="product-card">
+            <div class="product-image"></div>
+            <div class="product-info">
+              <h4 class="product-name">Mỳ Hảo Hảo</h4>
+              <p class="product-code">ABCD1234</p>
+              <div class="product-footer">
+                <span class="product-price">12.000đ</span>
+                <button class="add-btn">+</button>
+              </div>
+            </div>
+          </div>
+          <div class="product-card">
+            <div class="product-image"></div>
+            <div class="product-info">
+              <h4 class="product-name">Mỳ Hảo Hảo</h4>
+              <p class="product-code">ABCD1234</p>
+              <div class="product-footer">
+                <span class="product-price">12.000đ</span>
+                <button class="add-btn">+</button>
+              </div>
+            </div>
+          </div>
+          <div class="product-card">
+            <div class="product-image"></div>
+            <div class="product-info">
+              <h4 class="product-name">Mỳ Hảo Hảo</h4>
+              <p class="product-code">ABCD1234</p>
+              <div class="product-footer">
+                <span class="product-price">12.000đ</span>
+                <button class="add-btn">+</button>
+              </div>
+            </div>
+          </div>
+          <div class="product-card">
+            <div class="product-image"></div>
+            <div class="product-info">
+              <h4 class="product-name">Mỳ Hảo Hảo</h4>
+              <p class="product-code">ABCD1234</p>
+              <div class="product-footer">
+                <span class="product-price">12.000đ</span>
+                <button class="add-btn">+</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bottom-tabs">
+          <button class="tab-btn active">Bán chạy</button>
+          <button class="tab-btn">Khuyến mãi</button>
+          <button class="tab-btn">Hàng mới</button>
+        </div>
+      </section>
+
+      <!-- Cart -->
+      <aside class="cart-section">
+        <div class="cart-tabs">
+          <button class="cart-tab active">Hiện tại</button>
+          <button class="cart-tab">Giao hàng</button>
+          <button class="cart-tab">Phiếu Tạm</button>
+        </div>
+
+        <div class="cart-table">
+          <table>
+            <thead>
+              <tr>
+                <th>Hàng hóa</th>
+                <th>SL</th>
+                <th>Đơn giá</th>
+                <th>%CK</th>
+                <th>Thành tiền</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>2. Mỳ Hảo Hảo</td>
+                <td>2.0</td>
+                <td class="price">12.000đ</td>
+                <td>0.0</td>
+                <td class="price">12.000đ</td>
+              </tr>
+              <tr>
+                <td>1. Mỳ Hảo Hảo</td>
+                <td>2.0</td>
+                <td class="price">12.000đ</td>
+                <td>0.0</td>
+                <td class="price">12.000đ</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="cart-summary">
+          <div class="summary-row">
+            <span>Thành tiền:</span>
+            <span class="amount">24.000đ</span>
+          </div>
+          
+          <div class="summary-row discount-row">
+            <span>Chiết khấu hóa đơn (%):</span>
+            <div class="discount-input-group">
+              <input type="number" value="0" class="discount-input">
+              <button class="confirm-btn">Xác nhận</button>
+            </div>
+          </div>
+          
+          <div class="summary-row">
+            <span>Tổng tiền chiết khấu:</span>
+            <span class="amount">0đ</span>
+          </div>
+          
+          <div class="summary-row total-row">
+            <span>Tổng thanh toán:</span>
+            <span class="total-amount">100.000đ</span>
+          </div>
+        </div>
+
+        <div class="cart-actions">
+          <button class="action-btn secondary">Giao hàng</button>
+          <button class="action-btn secondary">Lưu tạm</button>
+          <button class="action-btn secondary">Tạm tính</button>
+          <button class="action-btn primary">Thanh toán</button>
+        </div>
+      </aside>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+      <div class="pos-footer">
+        <div class="footer-left">
+          <label>Địa điểm:</label>
+          <input type="text" value="Chi nhánh của hàng tiện lợi Amira" class="location-input">
+        </div>
+        
+        <div class="footer-right">
+          <label>Thu ngân/Quầy:</label>
+          <input type="text" value="Posora/quầy94" class="cashier-input">
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    function toggleCategory(button) {
+      const parent = button.parentElement;
+      const childrenList = parent.querySelector('.children-list');
+      
+      // Toggle expanded class
+      button.classList.toggle('expanded');
+      
+      // Toggle children list
+      if (childrenList) {
+        childrenList.classList.toggle('open');
+      }
+    }
+
+    function selectChild(button) {
+      // Remove active from all children
+      document.querySelectorAll('.category-item.child').forEach(child => {
+        child.classList.remove('active');
+      });
+      // Add active to clicked item
+      button.classList.add('active');
+    }
+  </script>
+</body>
+</html>

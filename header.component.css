@@ -1,0 +1,43 @@
+.pos-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 20px;
+  background: white;
+  border-top: 2px solid #000;
+  gap: 20px;
+}
+
+.footer-left,
+.footer-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.footer-left {
+  flex: 1;
+}
+
+.pos-footer label {
+  font-weight: 500;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.location-input,
+.cashier-input {
+  padding: 8px 12px;
+  border: 2px solid #000;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.location-input {
+  flex: 1;
+  min-width: 300px;
+}
+
+.cashier-input {
+  width: 200px;
+}

@@ -1,0 +1,93 @@
+.sidebar {
+  width: 145px;
+  background: white;
+  border-right: 2px solid #000;
+  padding: 12px 8px;
+  overflow-y: auto;
+}
+
+.category-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.category-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.category-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  border: 2px solid #000;
+  border-radius: 8px;
+  background: white;
+  cursor: pointer;
+  font-size: 13px;
+  text-align: left;
+  transition: all 0.2s;
+  width: 100%;
+}
+
+.category-item:hover {
+  background: #f0f0f0;
+}
+
+/* Parent category styles */
+.category-item.parent {
+  font-weight: 500;
+}
+
+/* Arrow transition */
+.category-item .arrow {
+  font-weight: bold;
+  font-size: 18px;
+  transition: transform 0.2s ease;
+  display: inline-block;
+}
+
+/* When parent is expanded, rotate arrow down */
+.category-item.parent.expanded .arrow {
+  transform: rotate(90deg);
+}
+
+/* Children list */
+.children-list {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 0;
+  padding-left: 0;
+}
+
+.children-list.open {
+  max-height: 500px;
+  margin-top: 6px;
+}
+
+/* Child category styles */
+.category-item.child {
+  padding: 8px 12px;
+  font-size: 12px;
+  border: 1px solid #666;
+  background: #f9fafb;
+  margin-left: 10px;
+  width: calc(100% - 10px);
+}
+
+.category-item.child:hover {
+  background: #e5e7eb;
+}
+
+.category-item.child.active {
+  background: #d1d5db;
+  font-weight: 600;
+  border-color: #000;
+  border-width: 2px;
+}
